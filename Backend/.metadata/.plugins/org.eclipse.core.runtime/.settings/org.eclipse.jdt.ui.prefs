@@ -1,0 +1,14 @@
+content_assist_autoactivation_triggers_java=.\!@\#$%^&*()1234567890abcdefghijhklmnopqrstuvwxyz
+content_assist_lru_history=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><history maxLHS\="100" maxRHS\="10"><lhs name\="org.springframework.security.core.userdetails.UserDetails"><rhs name\="com.example.task.service.impl.CustomUserDetails"/></lhs><lhs name\="com.example.task.domain.User"><rhs name\="com.example.task.domain.User"/></lhs><lhs name\="java.time.temporal.TemporalAccessor"><rhs name\="java.time.ZoneOffset"/></lhs><lhs name\="java.time.temporal.TemporalAdjuster"><rhs name\="java.time.ZoneOffset"/></lhs><lhs name\="com.github.cage.Cage"><rhs name\="com.github.cage.GCage"/></lhs><lhs name\="com.example.task.proxy.LoginResponse"><rhs name\="com.example.task.proxy.LoginResponse"/></lhs></history>
+content_assist_number_of_computers=14
+eclipse.preferences.version=1
+org.eclipse.jdt.ui.exception.name=e
+org.eclipse.jdt.ui.formatterprofiles.version=23
+org.eclipse.jdt.ui.gettersetter.use.is=true
+org.eclipse.jdt.ui.overrideannotation=true
+org.eclipse.jdt.ui.text.custom_code_templates=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><templates/>
+sourceHoverBackgroundColor=44,49,53
+spelling_locale_initialized=true
+typefilter_migrated_2=true
+useAnnotationsPrefPage=true
+useQuickDiffPrefPage=true

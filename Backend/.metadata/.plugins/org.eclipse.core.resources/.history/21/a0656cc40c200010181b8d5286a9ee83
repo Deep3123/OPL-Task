@@ -1,0 +1,15 @@
+package com.example.task.service;
+
+import java.util.List;
+
+import com.example.task.domain.User;
+
+public interface AdminService {
+	public List<User> getAllusers();
+
+	public User getUserByUsername();
+
+	public String updateUser();
+
+	public String deleteUser();
+}

@@ -1,0 +1,52 @@
+package com.example.task.controller;
+
+import com.example.task.domain.User;
+import com.example.task.proxy.UserProxy;
+import com.example.task.service.AdminService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/admin")
+public class AdminController {
+
+	@Autowired
+	private AdminService adminService;
+
+	// GET all users
+	@GetMapping("/users")
+	public ResponseEntity<List<UserProxy>> getAllUsers() {
+		List<UserProxy> users = adminService.getAllusers();
+
+		if (users != null && !users.isEmpty()) {
+			return ResponseEntity.ok(users);
+		} else {
+			return ResponseEntity.noContent().build(); // 204 No Content
+		}
+	}
+
+	// GET user by username
+	@GetMapping("/{username}")
+	public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+		User user = adminService.getUserByUsername(username);
+		return ResponseEntity.ok(user);
+	}
+
+	// PUT update user by username
+	@PutMapping("/{username}")
+	public ResponseEntity<String> updateUser(@PathVariable String username, @RequestBody UserProxy userProxy) {
+		String message = adminService.updateUser(userProxy, username);
+		return ResponseEntity.ok(message);
+	}
+
+	// DELETE user by username
+	@DeleteMapping("/{username}")
+	public ResponseEntity<String> deleteUser(@PathVariable String username) {
+		String message = adminService.deleteUser(username);
+		return ResponseEntity.ok(message);
+	}
+}

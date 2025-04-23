@@ -1,0 +1,27 @@
+package com.example.task.service;
+
+import java.awt.print.Pageable;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+
+import com.example.task.domain.User;
+import com.example.task.proxy.ResetPassword;
+import com.example.task.proxy.UserProxy;
+
+public interface AdminService {
+	public List<UserProxy> getAllusers();
+
+	public User getUserByUsername(String username);
+
+	public String updateUser(UserProxy userProxy, String username);
+
+	public String deleteUser(String username);
+
+	public String forgotPassword(String email);
+
+	public String resetPassword(String username, String timestamp, String token, ResetPassword proxy);
+
+	public Page<UserProxy> getAllUsersPageWise(Pageable pageable);
+
+}

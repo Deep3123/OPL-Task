@@ -1,0 +1,7 @@
+package com.example.task.proxy;
+
+public class Response {
+	private String message;
+
+	private String status_code;
+}
