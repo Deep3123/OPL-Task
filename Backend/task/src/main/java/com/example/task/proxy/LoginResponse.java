@@ -23,5 +23,5 @@ public class LoginResponse {
 	private String pinCode;
 	private Gender gender;
 	private String password;
-	private String profileImage;
+	private String profileImage; // Path to the image (keep this for reference)
 }

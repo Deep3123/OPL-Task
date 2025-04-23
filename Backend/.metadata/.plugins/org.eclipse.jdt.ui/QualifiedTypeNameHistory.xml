@@ -11,12 +11,9 @@
     <fullyQualifiedTypeName name="com.example.task.service.impl.CustomUserDetails"/>
     <fullyQualifiedTypeName name="com.example.task.service.impl.CustomUserDetailsService"/>
     <fullyQualifiedTypeName name="com.example.task.service.AdminService"/>
-    <fullyQualifiedTypeName name="java.util.List"/>
-    <fullyQualifiedTypeName name="com.example.task.util.MapperUtil"/>
     <fullyQualifiedTypeName name="jakarta.validation.ReportAsSingleViolation"/>
     <fullyQualifiedTypeName name="com.example.task.repo.UserRepo"/>
     <fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
-    <fullyQualifiedTypeName name="com.example.task.domain.User"/>
     <fullyQualifiedTypeName name="org.springframework.security.core.userdetails.UsernameNotFoundException"/>
     <fullyQualifiedTypeName name="java.time.LocalDateTime"/>
     <fullyQualifiedTypeName name="java.time.ZoneOffset"/>
@@ -42,13 +39,16 @@
     <fullyQualifiedTypeName name="java.util.Date"/>
     <fullyQualifiedTypeName name="org.springframework.data.jpa.repository.query.EqlParser.New_valueContext"/>
     <fullyQualifiedTypeName name="com.example.task.enums.Gender"/>
-    <fullyQualifiedTypeName name="java.lang.String"/>
     <fullyQualifiedTypeName name="com.github.javafaker.Internet.UserAgent"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.PostMapping"/>
     <fullyQualifiedTypeName name="org.springframework.http.ResponseEntity"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.RequestBody"/>
-    <fullyQualifiedTypeName name="com.example.task.proxy.UserProxy"/>
     <fullyQualifiedTypeName name="java.nio.file.Path"/>
     <fullyQualifiedTypeName name="java.nio.file.Paths"/>
     <fullyQualifiedTypeName name="java.io.IOException"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="com.example.task.domain.User"/>
+    <fullyQualifiedTypeName name="java.lang.String"/>
+    <fullyQualifiedTypeName name="com.example.task.util.MapperUtil"/>
+    <fullyQualifiedTypeName name="com.example.task.proxy.UserProxy"/>
 </qualifiedTypeNameHistroy>

@@ -1,5 +1,0 @@
-package com.example.task.proxy;
-
-public class ForgotPasswordRequest {
-
-}

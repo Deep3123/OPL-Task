@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -81,10 +82,37 @@ public class AdminServiceImpl implements AdminService {
 			if (authenticate.isAuthenticated() && optionalUser.isPresent()) {
 				User user = optionalUser.get();
 
+				// Get profile image as Base64 encoded string
+				String profileImageData = null;
+				if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+					try {
+						// Remove leading slash if present
+						String imagePath = user.getProfileImage();
+						if (imagePath.startsWith("/")) {
+							imagePath = imagePath.substring(1);
+						}
+
+						Path path = Paths.get(imagePath);
+						if (Files.exists(path) && Files.isReadable(path)) {
+							byte[] imageBytes = Files.readAllBytes(path);
+							profileImageData = "data:image/jpeg;base64,"
+									+ Base64.getEncoder().encodeToString(imageBytes);
+
+							// Set the profileImage field to the Base64 data directly
+							user.setProfileImage(profileImageData);
+						} else {
+							System.err.println("Cannot access profile image at: " + path);
+						}
+					} catch (IOException e) {
+						System.err.println("Error reading profile image: " + e.getMessage());
+					}
+				}
+
 				return new LoginResponse(user.getUsername(), jwtService.generateToken(user.getUsername()),
 						user.getAccessRole(), user.getName(), user.getEmail(), user.getDob(), user.getAddress(),
 						user.getContactNumber(), user.getPinCode(), user.getGender(), user.getPassword(),
-						user.getProfileImage());
+						user.getProfileImage() // Now contains the Base64 data
+				);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(
@@ -105,6 +133,19 @@ public class AdminServiceImpl implements AdminService {
 		return MapperUtil.convertListofValue(users, UserProxy.class);
 	}
 
+//	@Override
+//	public Page<UserProxy> getAllUsersPageWise(Pageable pageable) {
+//		Page<User> userPage = repo.findAll(pageable);
+//
+//		if (!userPage.hasContent()) {
+//			throw new ListEmptyException("No users found for the given page.");
+//		}
+//
+//		List<UserProxy> proxyList = MapperUtil.convertListofValue(userPage.getContent(), UserProxy.class);
+//		
+//		return new PageImpl<>(proxyList, pageable, userPage.getTotalElements());
+//	}
+
 	@Override
 	public Page<UserProxy> getAllUsersPageWise(Pageable pageable) {
 		Page<User> userPage = repo.findAll(pageable);
@@ -113,8 +154,35 @@ public class AdminServiceImpl implements AdminService {
 			throw new ListEmptyException("No users found for the given page.");
 		}
 
-		List<UserProxy> proxyList = MapperUtil.convertListofValue(userPage.getContent(), UserProxy.class);
-		return new PageImpl<>(proxyList, pageable, userPage.getTotalElements());
+		List<User> updatedUsers = userPage.getContent().stream().map(user -> {
+			String imagePath = user.getProfileImage();
+
+			if (imagePath != null && !imagePath.isEmpty()) {
+				try {
+					// Remove leading slash if present
+					if (imagePath.startsWith("/")) {
+						imagePath = imagePath.substring(1);
+					}
+
+					Path path = Paths.get(imagePath);
+					if (Files.exists(path) && Files.isReadable(path)) {
+						byte[] imageBytes = Files.readAllBytes(path);
+						String base64Image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageBytes);
+						user.setProfileImage(base64Image);
+					} else {
+						System.err.println("Cannot access profile image at: " + path.toAbsolutePath());
+					}
+				} catch (IOException e) {
+					System.err
+							.println("Error reading profile image for user ID " + user.getId() + ": " + e.getMessage());
+				}
+			}
+
+			return user;
+		}).collect(Collectors.toList());
+
+		return new PageImpl<>(MapperUtil.convertListofValue(updatedUsers, UserProxy.class), pageable,
+				userPage.getTotalElements());
 	}
 
 	@Override

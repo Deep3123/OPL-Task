@@ -1,7 +1,0 @@
-package com.example.task.service.impl;
-
-import org.springframework.security.core.userdetails.UserDetails;
-
-public class CustomUserDetails implements UserDetails {
-
-}
