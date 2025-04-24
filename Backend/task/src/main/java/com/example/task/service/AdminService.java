@@ -36,4 +36,6 @@ public interface AdminService {
 
 //	public String generateFakeUsers();
 
+	Page<UserProxy> searchUsers(String searchTerm, Pageable pageable);
+
 }

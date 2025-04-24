@@ -210,4 +210,23 @@ public class AdminController {
 //		return new ResponseEntity<>(new Response(message, HttpStatus.CREATED.toString()), HttpStatus.CREATED);
 //	}
 
+	@GetMapping("/search-users")
+	public ResponseEntity<?> searchUsers(@RequestParam String searchTerm, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+
+		try {
+			Page<UserProxy> usersPage = adminService.searchUsers(searchTerm, PageRequest.of(page, size));
+
+			if (usersPage.hasContent()) {
+				return new ResponseEntity<>(usersPage, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(
+						new Response("No users found matching your search criteria.", HttpStatus.NOT_FOUND.toString()),
+						HttpStatus.NOT_FOUND);
+			}
+		} catch (Exception e) {
+			return new ResponseEntity<>(new Response("Error searching users: " + e.getMessage(),
+					HttpStatus.INTERNAL_SERVER_ERROR.toString()), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

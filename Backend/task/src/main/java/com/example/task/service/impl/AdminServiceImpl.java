@@ -146,9 +146,51 @@ public class AdminServiceImpl implements AdminService {
 //		return new PageImpl<>(proxyList, pageable, userPage.getTotalElements());
 //	}
 
+//	@Override
+//	public Page<UserProxy> getAllUsersPageWise(Pageable pageable) {
+//		Page<User> userPage = repo.findAll(pageable);
+//
+//		if (!userPage.hasContent()) {
+//			throw new ListEmptyException("No users found for the given page.");
+//		}
+//
+////		List<User> updatedUsers = userPage.getContent().stream().filter(user -> user.getAccessRole().equals("USER"))
+//
+//		List<User> updatedUsers = userPage.getContent().stream().map(user -> {
+//			String imagePath = user.getProfileImage();
+//
+//			if (imagePath != null && !imagePath.isEmpty()) {
+//				try {
+//					// Remove leading slash if present
+//					if (imagePath.startsWith("/")) {
+//						imagePath = imagePath.substring(1);
+//					}
+//
+//					Path path = Paths.get(imagePath);
+//					if (Files.exists(path) && Files.isReadable(path)) {
+//						byte[] imageBytes = Files.readAllBytes(path);
+//						String base64Image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageBytes);
+//						user.setProfileImage(base64Image);
+//					} else {
+//						System.err.println("Cannot access profile image at: " + path.toAbsolutePath());
+//					}
+//				} catch (IOException e) {
+//					System.err
+//							.println("Error reading profile image for user ID " + user.getId() + ": " + e.getMessage());
+//				}
+//			}
+//
+//			return user;
+//		}).collect(Collectors.toList());
+//
+//		return new PageImpl<>(MapperUtil.convertListofValue(updatedUsers, UserProxy.class), pageable,
+//				userPage.getTotalElements());
+//	}
+
 	@Override
 	public Page<UserProxy> getAllUsersPageWise(Pageable pageable) {
-		Page<User> userPage = repo.findAll(pageable);
+		// Only fetch users with "USER" role
+		Page<User> userPage = repo.findByAccessRoleIgnoreCase("USER", pageable);
 
 		if (!userPage.hasContent()) {
 			throw new ListEmptyException("No users found for the given page.");
@@ -285,7 +327,7 @@ public class AdminServiceImpl implements AdminService {
 
 				// Create the HTML content for the email
 				String htmlContent = "<div style=\"font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;\">"
-						+ "<h2 style=\"color: #333;\">JetWayz - Password Reset Request</h2>" + "<p>Dear "
+						+ "<h2 style=\"color: #333;\">OPL Innovate - Password Reset Request</h2>" + "<p>Dear "
 						+ user.get().getName() + ",</p>"
 						+ "<p>We received a request to reset your password for JetWayz. "
 						+ "You can reset your password by clicking the link below:</p>" + "<p><a href=\"" + url
@@ -420,4 +462,90 @@ public class AdminServiceImpl implements AdminService {
 //
 //		return "105 fake users added successfully.";
 //	}
+
+//	@Override
+//	public Page<UserProxy> searchUsers(String searchTerm, Pageable pageable) {
+//		// Search across multiple fields
+//		Page<User> userPage = repo
+//				.findByNameContainingIgnoreCaseOrUsernameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrContactNumberContainingIgnoreCase(
+//						searchTerm, searchTerm, searchTerm, searchTerm, pageable);
+//
+//		if (!userPage.hasContent()) {
+//			throw new ListEmptyException("No users found matching your search criteria.");
+//		}
+//
+//		// Process profile images same as in getAllUsersPageWise
+//		List<User> updatedUsers = userPage.getContent().stream().map(user -> {
+//			String imagePath = user.getProfileImage();
+//
+//			if (imagePath != null && !imagePath.isEmpty()) {
+//				try {
+//					// Remove leading slash if present
+//					if (imagePath.startsWith("/")) {
+//						imagePath = imagePath.substring(1);
+//					}
+//
+//					Path path = Paths.get(imagePath);
+//					if (Files.exists(path) && Files.isReadable(path)) {
+//						byte[] imageBytes = Files.readAllBytes(path);
+//						String base64Image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageBytes);
+//						user.setProfileImage(base64Image);
+//					} else {
+//						System.err.println("Cannot access profile image at: " + path.toAbsolutePath());
+//					}
+//				} catch (IOException e) {
+//					System.err
+//							.println("Error reading profile image for user ID " + user.getId() + ": " + e.getMessage());
+//				}
+//			}
+//
+//			return user;
+//		}).collect(Collectors.toList());
+//
+//		return new PageImpl<>(MapperUtil.convertListofValue(updatedUsers, UserProxy.class), pageable,
+//				userPage.getTotalElements());
+//	}
+
+	@Override
+	public Page<UserProxy> searchUsers(String searchTerm, Pageable pageable) {
+		// Search across multiple fields AND filter by "USER" role
+		Page<User> userPage = repo
+				.findByAccessRoleIgnoreCaseAndNameContainingIgnoreCaseOrAccessRoleIgnoreCaseAndUsernameContainingIgnoreCaseOrAccessRoleIgnoreCaseAndEmailContainingIgnoreCaseOrAccessRoleIgnoreCaseAndContactNumberContainingIgnoreCase(
+						"USER", searchTerm, "USER", searchTerm, "USER", searchTerm, "USER", searchTerm, pageable);
+
+		if (!userPage.hasContent()) {
+			throw new ListEmptyException("No users found matching your search criteria.");
+		}
+
+		// Process profile images same as in getAllUsersPageWise
+		List<User> updatedUsers = userPage.getContent().stream().map(user -> {
+			String imagePath = user.getProfileImage();
+
+			if (imagePath != null && !imagePath.isEmpty()) {
+				try {
+					// Remove leading slash if present
+					if (imagePath.startsWith("/")) {
+						imagePath = imagePath.substring(1);
+					}
+
+					Path path = Paths.get(imagePath);
+					if (Files.exists(path) && Files.isReadable(path)) {
+						byte[] imageBytes = Files.readAllBytes(path);
+						String base64Image = "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageBytes);
+						user.setProfileImage(base64Image);
+					} else {
+						System.err.println("Cannot access profile image at: " + path.toAbsolutePath());
+					}
+				} catch (IOException e) {
+					System.err
+							.println("Error reading profile image for user ID " + user.getId() + ": " + e.getMessage());
+				}
+			}
+
+			return user;
+		}).collect(Collectors.toList());
+
+		return new PageImpl<>(MapperUtil.convertListofValue(updatedUsers, UserProxy.class), pageable,
+				userPage.getTotalElements());
+	}
 }

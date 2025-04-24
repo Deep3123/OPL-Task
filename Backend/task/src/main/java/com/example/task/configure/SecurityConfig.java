@@ -45,7 +45,12 @@ public class SecurityConfig {
 			corsConfig.setExposedHeaders(List.of("*"));
 			corsConfig.setAllowCredentials(true);
 			return corsConfig;
-		})).authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+		})).authorizeHttpRequests(auth -> auth
+				.requestMatchers("/login", "/register", "/forgot-password", "/reset-password/**", "/captcha")
+				.permitAll()
+				.requestMatchers("/get-all-user-details", "/get-user-by-username/**", "/update-user-by-username",
+						"/delete-user-by-username/**", "/get-all-users-pagewise")
+				.hasAuthority("ADMIN").anyRequest().authenticated())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
 
