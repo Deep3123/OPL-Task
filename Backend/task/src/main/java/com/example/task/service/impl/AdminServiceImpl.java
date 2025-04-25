@@ -1,11 +1,17 @@
 package com.example.task.service.impl;
 
 import java.io.IOException;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ByteArrayResource;
+import java.io.ByteArrayOutputStream;
+import java.time.format.DateTimeFormatter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 //import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -547,5 +553,112 @@ public class AdminServiceImpl implements AdminService {
 
 		return new PageImpl<>(MapperUtil.convertListofValue(updatedUsers, UserProxy.class), pageable,
 				userPage.getTotalElements());
+	}
+
+	@Override
+	public ByteArrayResource generateExcelReport(String searchTerm) throws IOException {
+		List<User> users;
+
+		// If searchTerm is provided, use the search functionality
+		if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+			// Get all users matching search term
+			Page<User> userPage = repo
+					.findByAccessRoleIgnoreCaseAndNameContainingIgnoreCaseOrAccessRoleIgnoreCaseAndUsernameContainingIgnoreCaseOrAccessRoleIgnoreCaseAndEmailContainingIgnoreCaseOrAccessRoleIgnoreCaseAndContactNumberContainingIgnoreCase(
+							"USER", searchTerm, "USER", searchTerm, "USER", searchTerm, "USER", searchTerm,
+							Pageable.unpaged());
+			users = userPage.getContent();
+		} else {
+			// Get all users with role USER
+			Page<User> userPage = repo.findByAccessRoleIgnoreCase("USER", Pageable.unpaged());
+			users = userPage.getContent();
+		}
+
+		if (users.isEmpty()) {
+			throw new ListEmptyException("No users found for export.");
+		}
+
+		// Create workbook and sheet
+		Workbook workbook = new XSSFWorkbook();
+		Sheet sheet = workbook.createSheet("Users");
+
+		// Create header row with styles
+		Font headerFont = workbook.createFont();
+		headerFont.setBold(true);
+		headerFont.setColor(IndexedColors.WHITE.getIndex());
+
+		CellStyle headerStyle = workbook.createCellStyle();
+		headerStyle.setFont(headerFont);
+		headerStyle.setFillForegroundColor(IndexedColors.BLUE_GREY.getIndex());
+		headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		headerStyle.setBorderBottom(BorderStyle.THIN);
+
+		Row headerRow = sheet.createRow(0);
+		String[] columns = { "ID", "Name", "Username", "Email", "Role", "Contact Number", "Address", "PIN Code",
+				"Date of Birth", "Gender" };
+
+		for (int i = 0; i < columns.length; i++) {
+			Cell cell = headerRow.createCell(i);
+			cell.setCellValue(columns[i]);
+			cell.setCellStyle(headerStyle);
+			sheet.setColumnWidth(i, 20 * 256); // 20 characters width
+		}
+
+		// Create date formatter
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
+		// Regular data style
+		CellStyle dataStyle = workbook.createCellStyle();
+		dataStyle.setBorderBottom(BorderStyle.THIN);
+		dataStyle.setBorderTop(BorderStyle.THIN);
+		dataStyle.setBorderLeft(BorderStyle.THIN);
+		dataStyle.setBorderRight(BorderStyle.THIN);
+
+		// Populate data rows
+		int rowNum = 1;
+		for (User user : users) {
+			Row row = sheet.createRow(rowNum++);
+
+			row.createCell(0).setCellValue(user.getId());
+			row.createCell(1).setCellValue(user.getName());
+			row.createCell(2).setCellValue(user.getUsername());
+			row.createCell(3).setCellValue(user.getEmail());
+			row.createCell(4).setCellValue(user.getAccessRole());
+			row.createCell(5).setCellValue(user.getContactNumber() != null ? user.getContactNumber() : "N/A");
+			row.createCell(6).setCellValue(user.getAddress() != null ? user.getAddress() : "N/A");
+			row.createCell(7).setCellValue(user.getPinCode() != null ? user.getPinCode() : "N/A");
+
+			Cell dobCell = row.createCell(8);
+			if (user.getDob() != null) {
+				dobCell.setCellValue(dateFormatter.format(user.getDob()));
+			} else {
+				dobCell.setCellValue("N/A");
+			}
+
+			Cell genderCell = row.createCell(9);
+			if (user.getGender() != null) {
+				genderCell.setCellValue(user.getGender().toString());
+			} else {
+				genderCell.setCellValue("N/A");
+			}
+
+			// Apply style to all cells in the row
+			for (int i = 0; i < columns.length; i++) {
+				row.getCell(i).setCellStyle(dataStyle);
+			}
+		}
+
+		// Auto-size columns for better readability
+		for (int i = 0; i < columns.length; i++) {
+			sheet.autoSizeColumn(i);
+		}
+
+		// Write to ByteArrayOutputStream
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		workbook.write(outputStream);
+		workbook.close();
+
+		// Create and return ByteArrayResource
+		byte[] byteArray = outputStream.toByteArray();
+		return new ByteArrayResource(byteArray);
 	}
 }

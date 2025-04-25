@@ -1,8 +1,10 @@
 package com.example.task.service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,4 +40,5 @@ public interface AdminService {
 
 	Page<UserProxy> searchUsers(String searchTerm, Pageable pageable);
 
+	ByteArrayResource generateExcelReport(String searchTerm) throws IOException;
 }
